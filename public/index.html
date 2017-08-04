@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Sock-Monkey</title>
+    <style type="text/css" media="screen">
+      #editor { 
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+    </style>
+    <script src="/js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <div id="editor"></div>
+    <script>
+      var activeRow = 0;
+      var editor = ace.edit("editor");
+      editor.renderer.setShowGutter(false);
+      editor.setTheme("ace/theme/terminal");
+      editor.$blockScrolling = Infinity;
+
+      var socket = io();
+      
+      socket.on('monkeyDo', function (data) {
+        editor.insert(data);
+        activeRow = editor.env.document.getLength() - 1;
+      });
+
+      editor.on("change", function(e) {
+        if (e.end.row > activeRow) {
+          console.log(editor.env.document.getLines(activeRow, e.end.row - 1));
+          for (i = activeRow; i < e.end.row; i++ ) {
+            socket.emit('monkeySee', editor.env.document.getLine(i));
+          }
+          activeRow = e.end.row;
+        }
+      });
+
+    </script>
+  </body>
+</html>
