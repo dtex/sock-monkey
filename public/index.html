@@ -24,14 +24,18 @@
       editor.$blockScrolling = Infinity;
 
       var socket = io();
+
+      var paused = false;
       
       socket.on('monkeyDo', function (data) {
+        paused = true;
         editor.insert(data);
         activeRow = editor.env.document.getLength() - 1;
+        paused = false;
       });
 
       editor.on("change", function(e) {
-        if (e.end.row > activeRow) {
+        if (!paused && e.end.row > activeRow) {
           console.log(editor.env.document.getLines(activeRow, e.end.row - 1));
           for (i = activeRow; i < e.end.row; i++ ) {
             socket.emit('monkeySee', editor.env.document.getLine(i));
