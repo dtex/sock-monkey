@@ -37,7 +37,9 @@ function SockMonkey(opts) {
     const repl = REPL.start({prompt: "> ", terminal: false});//, input: inStream, output: process.stdout });
     
     socket.on('monkeySee', function(data) {
-     str(data + "\n").pipe(process.stdin, { end: false });
+     
+      process.stdin.emit('data', data + "\n");  
+      //str(data + "\n").pipe(process.stdin, { end: false });
     });
 
     setTimeout(function() { console.log("HIYA")}, 5000 );
